@@ -1,0 +1,34 @@
+# Dependencias
+node_modules/
+
+# Builds y salida (backend y frontend)
+dist/
+build/
+out/
+coverage/
+*.tsbuildinfo
+.vite/
+.cache/
+
+# Variables de entorno (se sube solo el .env.example)
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editores
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
