@@ -51,13 +51,13 @@ La comiquería vende manga y libros de anime solo en el local y solo en efectivo
 - **RN-40:** El sistema permite como máximo 4 administradores y 10 empleados a la vez.
 
 **Catálogo y cantidad**
-- **RN-08:** El catálogo es público. Cada libro tiene título, serie, número de tomo, autor, editorial, idioma, género, clasificación por edad, imagen de portada, sinopsis, precio y cantidad disponible.
+- **RN-08:** El catálogo es público. Cada libro tiene título, serie, número de tomo, autor, editorial, idioma, género, clasificación por edad, imagen de portada, sinopsis, precio y cantidad disponible. La portada es un enlace a una imagen que pega el administrador. Al cargar un libro, el administrador elige una serie existente o escribe una nueva, y se crea sola.
 - **RN-09:** Las series se agrupan y se ven todos sus tomos en orden. Se busca por título, autor o serie y se filtra por género, editorial, idioma, disponibilidad y precio. Hay secciones de novedades y ofertas.
-- **RN-41:** Un libro recién ingresado aparece en novedades 2 días.
+- **RN-41:** Un libro nuevo aparece en el catálogo apenas se carga y queda en novedades 2 días. Sumar copias a un libro que ya existía no cuenta como novedad.
 - **RN-10:** La cantidad que se muestra es la que no está reservada. Baja de inmediato cuando alguien reserva.
 - **RN-11:** Un libro agotado sigue visible con la marca de agotado y no se puede reservar.
 - **RN-12:** El administrador puede ocultar un libro sin borrarlo. No se puede borrar un libro con reservas o historial, solo ocultarlo.
-- **RN-13:** El empleado actualiza la cantidad en el instante en que ingresa mercadería o se vende un libro directo en caja, y no puede vender un libro reservado por otra persona.
+- **RN-13:** El empleado y el administrador actualizan la cantidad en el instante en que ingresa mercadería o se vende un libro directo en caja. No se puede vender un libro reservado por otra persona.
 
 **Reservas**
 - **RN-14:** Cada reserva es de 1 libro. El cliente puede tener como máximo 5 reservas activas a la vez (5 libros) y solo 1 copia de cada libro.
@@ -67,7 +67,7 @@ La comiquería vende manga y libros de anime solo en el local y solo en efectivo
 - **RN-18:** Si no va dentro de las 24 horas, la reserva vence sola, el libro vuelve a estar disponible y el cliente queda con una deuda.
 - **RN-19:** El cliente puede cancelar su reserva en cualquier momento antes de que venza, sin costo y sin deuda, de a 1 reserva (1 libro) por vez. El libro se libera de inmediato.
 - **RN-42:** El cliente puede cancelar como máximo 5 reservas por mes calendario. El contador se reinicia el día 1 de cada mes. En la sexta cancelación el sistema no deja cancelar: la reserva sigue activa y, si vence, genera deuda del 5% como cualquier otra.
-- **RN-20:** El precio queda fijo al reservar. Si el administrador lo sube o lo baja después, la reserva mantiene el precio original, y si el nuevo es más bajo se cobra el más bajo.
+- **RN-20:** El precio queda fijo al reservar. Si el administrador lo sube o lo baja después, la reserva mantiene el precio original, y si el nuevo es más bajo se cobra el más bajo. El precio nuevo incluye los descuentos vigentes en el momento del retiro; los aumentos no se cobran.
 - **RN-21:** El 5% se calcula sobre el precio que el cliente paga al retirar.
 - **RN-22:** Como cada reserva es de 1 libro, cada libro se retira por separado y paga su propio 5%. Lo que no se retira vence a las 24 horas de su propia reserva y genera deuda del 5%.
 - **RN-23:** Manda el reloj del servidor. El contador del cliente es solo una referencia. Si el plazo vence 1 segundo antes de que el empleado confirme el retiro, la reserva ya venció.
@@ -87,8 +87,8 @@ La comiquería vende manga y libros de anime solo en el local y solo en efectivo
 - **RN-43:** Los descuentos y los aumentos van de un mínimo de 10% a un máximo de 50%. No se puede poner un descuento ni un aumento de 5%.
 - **RN-33:** El administrador publica avisos y anuncios (novedades, firmas, cierres) en la sección de avisos.
 - **RN-44:** Cada aviso queda visible 7 días.
-- **RN-34:** El sistema envía 3 correos por cada reserva: al confirmarla (con el código), 6 horas antes de que venza y cuando vence.
-- **RN-35:** El registro de actividad guarda quién hizo cada cambio (precio, cantidad, retiro, deuda, perdón de deuda) y nadie puede borrarlo a mano.
+- **RN-34:** El sistema envía 3 correos por cada reserva: al confirmarla (con el código), 6 horas antes de que venza y cuando vence. El aviso de 6 horas se manda 6 horas antes del vencimiento vigente: si un cierre del local suma 24 horas, se vuelve a mandar 6 horas antes del nuevo vencimiento. Si un envío falla, la reserva no se frena: se reintenta hasta 3 veces en total, con 1 minuto entre intentos, y si falla las 3 queda en el registro de actividad como correo fallido.
+- **RN-35:** El registro de actividad guarda quién hizo cada cambio (precio, cantidad, retiro, deuda, perdón de deuda) y nadie puede borrarlo a mano. También guarda los correos fallidos (RN-34).
 - **RN-45:** El registro de actividad se borra solo al pasar 1 mes. Los baneos y los perdones de deuda quedan guardados en la propia cuenta con fecha y motivo.
 - **RN-36:** Las contraseñas se guardan cifradas.
 - **RN-46:** Las sesiones se cierran solas tras 4 días sin uso para el cliente y 7 días sin uso para el empleado.
@@ -118,6 +118,7 @@ La comiquería vende manga y libros de anime solo en el local y solo en efectivo
 - Dado que tengo reservas activas, cuando entro a mi cuenta, entonces veo un contador por reserva. (RN-24)
 - Dado que el contador de mi pantalla marca tiempo, cuando el servidor ya venció la reserva, entonces vale la hora del servidor. (RN-23)
 - Dado que faltan 6 horas para que venza, cuando llega ese momento, entonces recibo un correo de aviso. (RN-34)
+- Dado que un cierre del local suma 24 horas a mi reserva, cuando faltan 6 horas para el nuevo vencimiento, entonces recibo otro correo de aviso. (RN-34, RN-38)
 - Dado que reservo y el plazo cae con el local cerrado, cuando pasan las 24 horas, entonces vence igual. (RN-16)
 
 **HU-05 (cliente):** Quiero cancelar una reserva, para liberar el libro si no voy a ir.
@@ -148,6 +149,7 @@ La comiquería vende manga y libros de anime solo en el local y solo en efectivo
 - Dado que el cliente presenta su código o documento, cuando busco la reserva, entonces el sistema me muestra su estado actual. (RN-17, RN-24)
 - Dado que la reserva está activa, cuando cobro el precio más el 5% en efectivo, entonces la marco como retirada. (RN-17, RN-21)
 - Dado que el precio cambió después de reservar, cuando cobro, entonces cobro el precio fijado al reservar, o el más bajo si bajó. (RN-20)
+- Dado que hay un descuento vigente al retirar y deja el precio más bajo, cuando cobro, entonces cobro el precio con descuento. (RN-20)
 - Dado que la reserva venció antes de mi confirmación, cuando intento marcarla, entonces no puedo. (RN-23)
 
 **HU-10 (empleado):** Quiero registrar el retiro de cada libro por separado, para entregar solo los libros que el cliente se lleva ahora.
@@ -157,9 +159,10 @@ La comiquería vende manga y libros de anime solo en el local y solo en efectivo
 **HU-11 (empleado):** Quiero cobrar una deuda, para que el cliente pueda volver a reservar.
 - Dado que el cliente tiene deuda y paga en efectivo en el local, cuando la marco como pagada, entonces su cuenta queda libre para reservar. (RN-28)
 
-**HU-12 (empleado):** Quiero actualizar la cantidad de libros en el instante, para que el catálogo muestre lo que realmente hay.
+**HU-12 (empleado o administrador):** Quiero actualizar la cantidad de libros en el instante, para que el catálogo muestre lo que realmente hay.
 - Dado que ingresó mercadería o vendí un libro en caja, cuando actualizo la cantidad en ese momento, entonces el catálogo muestra el valor nuevo. (RN-13)
 - Dado que un libro está reservado por otro cliente, cuando quiero venderlo en caja, entonces no puedo. (RN-13)
+- Dado que soy administrador, cuando actualizo la cantidad de un libro, entonces el catálogo muestra el valor nuevo. (RN-13)
 
 **HU-13 (empleado):** Quiero informar un documento ajeno, para que no se use una cuenta falsa.
 - Dado que el documento no es de la persona que se presenta, cuando lo informo al administrador, entonces queda para su revisión. (RN-39)
@@ -167,6 +170,9 @@ La comiquería vende manga y libros de anime solo en el local y solo en efectivo
 **HU-14 (administrador):** Quiero administrar el catálogo, para mantenerlo actualizado.
 - Dado que quiero sacar un libro, cuando lo oculto, entonces desaparece del catálogo sin borrarse. (RN-12)
 - Dado que un libro tiene reservas o historial, cuando intento borrarlo, entonces el sistema no me deja, solo puedo ocultarlo. (RN-12)
+- Dado que cargo un libro con título, precio, copias, serie existente y un enlace de portada, cuando lo guardo, entonces aparece en el catálogo y en novedades. (RN-08, RN-41)
+- Dado que cargo un libro con una serie que no existe, cuando lo guardo, entonces se crea la serie. (RN-08)
+- Dado que cargo un libro sin título o sin precio, cuando intento guardarlo, entonces el sistema no lo acepta. (RN-08)
 
 **HU-15 (administrador):** Quiero poner descuentos y aumentos, para ajustar los precios.
 - Dado que defino un descuento con fecha de inicio y fin, cuando lo aplico a un libro, serie, editorial o a todo el catálogo, entonces rige en ese período. (RN-32)
@@ -219,3 +225,5 @@ La comiquería vende manga y libros de anime solo en el local y solo en efectivo
 - **CB-20 (porcentaje fuera de rango):** un descuento o aumento de 5% o de 60% no se acepta (RN-43).
 - **CB-21 (menor de 15 años):** no puede tener cuenta. Con 15 a 17 años, solo con adulto responsable (RN-06).
 - **CB-22 (cuenta baneada con reservas):** se cancelan todas sus reservas, los libros se liberan y la cuenta solo ve el catálogo hasta que el administrador la desbanee (RN-39).
+- **CB-23 (correo fallido):** si falla un envío, la reserva no se frena. Se reintenta hasta 3 veces en total, con 1 minuto entre intentos, y si falla las 3 queda como correo fallido en el registro de actividad (RN-34, RN-35).
+- **CB-24 (cierre del local y aviso de 6 horas):** si un cierre suma 24 horas al vencimiento, el aviso de 6 horas se vuelve a mandar 6 horas antes del nuevo vencimiento (RN-34, RN-38).

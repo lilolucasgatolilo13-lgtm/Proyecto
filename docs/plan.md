@@ -25,6 +25,8 @@ frontend/src/
   pages/  components/  api/  context/ (sesión del cliente o empleado)
 ```
 
+El frontend tiene un panel por rol (`/admin` y `/empleado`) con menú lateral. Esconder el panel es solo comodidad: la protección real es el 403 del backend (RN-46).
+
 ## 2. ¿Qué base de datos usamos, y por qué?
 
 **SQLite** (con la librería `better-sqlite3`).
@@ -39,14 +41,15 @@ frontend/src/
 | `usuarios` | id, rol (cliente, empleado, administrador), nombre, apellido, documento (único), correo (único), telefono, contrasena_hash, fecha_nacimiento, baneado | — |
 | `sesiones` | token, usuario_id, ultima_actividad | pertenece a un usuario |
 | `series` | id, nombre | tiene muchos libros |
-| `libros` | id, titulo, serie_id, numero_tomo, autor, editorial, idioma, genero, clasificacion_edad, portada, sinopsis, precio, cantidad_total, oculto, fecha_ingreso | pertenece a una serie |
-| `reservas` | id, codigo, cliente_id, libro_id, precio_fijado, fecha_reserva, fecha_vencimiento, estado (activa, retirada, cancelada, vencida), fecha_cancelacion | 1 reserva = 1 libro; pertenece a un cliente |
+| `libros` | id, titulo, serie_id, numero_tomo, autor, editorial, idioma, genero, clasificacion_edad, portada_url (enlace), sinopsis, precio, cantidad_total, oculto, fecha_ingreso | pertenece a una serie |
+| `reservas` | id, codigo, cliente_id, libro_id, precio_fijado, fecha_reserva, fecha_vencimiento, estado (activa, retirada, cancelada, vencida), fecha_cancelacion, aviso_6h_para (vencimiento del último aviso de 6 horas) | 1 reserva = 1 libro; pertenece a un cliente |
 | `deudas` | id, cliente_id, reserva_id, monto, estado (pendiente, pagada, perdonada), fecha | pertenece a un cliente |
 | `descuentos` | id, alcance (libro, serie, editorial, catalogo), referencia_id, tipo (descuento, aumento), porcentaje, fecha_inicio, fecha_fin | — |
 | `avisos` | id, titulo, texto, fecha_publicacion, administrador_id | — |
 | `cierres_local` | id, fecha, administrador_id | — |
 | `historial_cuenta` | id, usuario_id, tipo (baneo, reversion_baneo, perdon_deuda), motivo, fecha, administrador_id | pertenece a un usuario |
 | `registro_actividad` | id, usuario_id, accion, detalle, fecha | — |
+| `correos` | id, destinatario, asunto, cuerpo, estado (pendiente, enviado, fallido), intentos, fecha | los crean las reglas y los envía un job |
 
 Notas:
 - La **cantidad disponible** no se guarda: se calcula como `cantidad_total` menos los libros con reserva activa (RN-10).
@@ -70,9 +73,10 @@ API REST en `/api`, con datos en JSON. El rol sale de la sesión, no del pedido.
 | `GET /reservas/buscar?codigo=&documento=` | empleado | HU-09 |
 | `POST /reservas/:id/retiro` (1 libro) | empleado | HU-09, HU-10 |
 | `POST /deudas/:id/pago` | empleado | HU-11 |
-| `PATCH /libros/:id/cantidad` | empleado | HU-12 |
+| `PATCH /libros/:id/cantidad` | empleado, administrador | HU-12 |
 | `POST /usuarios/:id/informe-documento` | empleado | HU-13 |
-| `POST /libros`, `PATCH /libros/:id`, `PATCH /libros/:id/ocultar` | administrador | HU-14 |
+| `POST /libros` (recibe `serie_id` o `serie_nueva`), `PATCH /libros/:id`, `PATCH /libros/:id/ocultar` | administrador | HU-14 |
+| `GET /series` (para elegir la serie al cargar un libro) | empleado, administrador | HU-14 |
 | `POST /descuentos` | administrador | HU-15 |
 | `POST /deudas/:id/perdon` | administrador | HU-16 |
 | `GET /avisos`, `POST /avisos`, `POST /cierres` | todos (GET), administrador | HU-17 |
@@ -91,17 +95,17 @@ API REST en `/api`, con datos en JSON. El rol sale de la sesión, no del pedido.
 | RN-05 | Índices únicos de `documento` y `correo` en `usuarios`, más validación en `UsuarioService`. |
 | RN-06 | `UsuarioService.crearCuenta` (rechaza menores de 15; de 15 a 17 exige adulto responsable) y `ReservaService.crear` (bloquea libros para mayores a menores de 18). |
 | RN-07 | `UsuarioService.restablecerContrasena`, solo empleado. |
-| RN-08, RN-09 | `LibroService.buscar` y `LibroRepository` (búsqueda, filtros, series, ofertas); pantalla de catálogo. |
+| RN-08, RN-09 | `LibroService.buscar` y `LibroRepository` (búsqueda, filtros, series, ofertas); pantalla de catálogo. `LibroService.crear` guarda la portada como enlace y crea la serie si es nueva. |
 | RN-10 | `LibroRepository.cantidadDisponible` (cálculo, no campo guardado). |
 | RN-11 | `LibroService` (marca de agotado) y `ReservaService.crear` (rechaza si no hay). |
 | RN-12 | `LibroService.ocultar` y `LibroService.borrar` (rechaza si hay reservas o historial). |
-| RN-13 | `LibroService.actualizarCantidad`: no deja bajar la cantidad por debajo de los libros reservados. |
+| RN-13 | `LibroService.actualizarCantidad` (empleado y administrador): no deja bajar la cantidad por debajo de los libros reservados. |
 | RN-14, RN-15 | `ReservaService.crear` (1 reserva = 1 libro; tope de 5 activas y 1 copia por libro) y `ReservaRepository.contarActivas`. |
 | RN-16 | `ReservaService.crear`: `fecha_vencimiento` = ahora + 24 horas corridas. |
 | RN-17, RN-21 | `ReservaService.registrarRetiro`: total = precio + 5% (valor en `config`). |
 | RN-18 | `VencimientoJob` y `ReservaService.vencer`: pasa a vencida, libera el libro y crea la deuda. |
 | RN-19, RN-42 | `ReservaService.cancelar`: cuenta las cancelaciones del mes calendario y bloquea la sexta. |
-| RN-20 | `reservas.precio_fijado` al reservar; en el retiro se cobra el menor entre el fijado y el vigente. |
+| RN-20 | `reservas.precio_fijado` al reservar; en el retiro se cobra el menor entre el fijado y el vigente. El precio vigente incluye los descuentos activos (`DescuentoService`); los aumentos no se cobran. |
 | RN-22 | `ReservaService.registrarRetiro`: cada reserva (1 libro) se retira y vence por separado. |
 | RN-23 | Todo plazo se calcula con la hora del servidor; el front solo muestra el contador. |
 | RN-24 | `ReservaService.crear` genera el código; el contador de la pantalla usa `fecha_vencimiento`. |
@@ -111,14 +115,14 @@ API REST en `/api`, con datos en JSON. El rol sale de la sesión, no del pedido.
 | RN-31 | `DeudaService.perdonar`, solo administrador, con motivo en `historial_cuenta`. |
 | RN-32, RN-43 | `DescuentoService`: valida de 10% a 50% y las fechas de inicio y fin. |
 | RN-33, RN-44 | `AvisoService`; la consulta devuelve solo avisos de los últimos 7 días. |
-| RN-34 | `CorreoService` y `VencimientoJob` (3 correos por reserva). |
-| RN-35, RN-45 | Middleware `registrarActividad` y `LimpiezaJob` (borra registros de más de 1 mes; `historial_cuenta` no se borra). |
+| RN-34 | `CorreoService` y `CorreoJob` (3 correos por reserva, tabla `correos`). El aviso de 6 horas se calcula sobre el vencimiento vigente y se repite si un cierre lo cambia. Reintentos: hasta 3 veces en total, 1 minuto entre intentos. |
+| RN-35, RN-45 | Middleware `registrarActividad` y `LimpiezaJob` (borra registros de más de 1 mes; `historial_cuenta` no se borra). También registra los correos fallidos. |
 | RN-36 | Contraseñas con `bcrypt` en `UsuarioService`. |
 | RN-37 | `GET /contacto` y `GET /politicas`. |
 | RN-38 | `CierreService.crear`: suma 24 horas a las reservas activas que vencerían durante el cierre y avisa. |
 | RN-39 | `UsuarioService.informarDocumento` (empleado) y `UsuarioService.banear` y `revertirBaneo` (administrador). Al banear se cancelan todas las reservas activas del cliente y el middleware de roles bloquea `POST /reservas` a cuentas baneadas. |
 | RN-40 | `UsuarioService.crearEmpleado` y la creación de administradores: cuentan antes de crear (máximo 10 y 4). |
-| RN-41 | `LibroRepository.novedades`: libros con `fecha_ingreso` de los últimos 2 días. |
+| RN-41 | `LibroRepository.novedades`: libros con `fecha_ingreso` de los últimos 2 días. Sumar copias no cambia `fecha_ingreso`. |
 | RN-46 | Middleware `autenticar`: cierra la sesión sin uso (4 días cliente, 7 días empleado). |
 
 ## 6. ¿Cómo resolvemos las partes difíciles?
@@ -131,12 +135,15 @@ API REST en `/api`, con datos en JSON. El rol sale de la sesión, no del pedido.
 - Además, cada consulta y cada retiro verifican el vencimiento con la hora del servidor, por si el job no corrió.
 - El contador del cliente se calcula en pantalla desde `fecha_vencimiento`, y solo informa.
 
-**Correos (RN-34).** Un `CorreoService` con `nodemailer` envía 3 correos por reserva: al confirmar (con el código), 6 horas antes y al vencer. El job busca las reservas que cruzan esas marcas y guarda qué correo ya se mandó, para no duplicarlo. El envío no puede frenar una reserva.
+**Correos (RN-34).** Las reglas no mandan correos directo: insertan una fila en la tabla `correos` (estado pendiente) y un `CorreoJob` las envía con `nodemailer`. Así un fallo nunca frena una reserva.
+- **Aviso de 6 horas:** el job lo manda cuando falta 6 horas o menos para el vencimiento vigente y la reserva no tiene guardado un aviso para ese mismo vencimiento (`aviso_6h_para`). Si un cierre del local suma 24 horas, el vencimiento cambia y se vuelve a mandar 6 horas antes del nuevo.
+- **Correo fallido:** el job reintenta hasta 3 veces en total, con 1 minuto entre intentos. Si falla las 3, el correo queda como fallido y se guarda 1 registro de "correo fallido" en `registro_actividad`. No se reintenta una 4.ª vez.
 
 ## 7. ¿Qué dudas quedan para el analista?
 
-Cerradas con el analista: edad mínima de 15 años con fecha de nacimiento, libros para mayores solo desde los 18, tope de 5 libros, 1 libro = 1 reserva y qué pasa con una cuenta baneada.
+No quedan dudas abiertas. Cerradas con el analista: edad mínima de 15 años con fecha de nacimiento, libros para mayores solo desde los 18, tope de 5 libros, 1 libro = 1 reserva, qué pasa con una cuenta baneada, portada como enlace, series que se crean al cargar el libro y cantidad editable por empleado y administrador.
 
-1. **Precio más bajo (RN-20):** ¿un descuento de fecha que está vigente al retirar cuenta como "precio nuevo más bajo"?
-2. **Cierre del local (RN-34, RN-38):** si una reserva suma 24 horas por un cierre, ¿el correo de 6 horas antes se recalcula con el nuevo vencimiento?
-3. **Correo fallido (RN-34):** si el envío falla, ¿se reintenta, se avisa al empleado o se ignora?
+Decididas por el arquitecto y agregadas a la spec:
+1. **Precio al retirar (RN-20):** un descuento vigente al retirar cuenta como "precio nuevo más bajo". Se cobra el menor entre el precio fijado y el vigente, y los aumentos no se cobran.
+2. **Cierre y aviso de 6 horas (RN-34, RN-38):** el aviso se calcula sobre el vencimiento vigente y se vuelve a mandar si un cierre lo cambia.
+3. **Correo fallido (RN-34, RN-35):** hasta 3 intentos con 1 minuto entre intentos, y si falla queda registrado. Nunca frena una reserva.
