@@ -19,7 +19,7 @@ La comiquería vende manga y libros de anime solo en el local y solo en efectivo
 **Entra:**
 - Catálogo público con búsqueda y filtros.
 - Cuentas de clientes creadas en persona.
-- Reservas con plazo de 24 horas, cancelación (hasta 5 por mes) y retiro total o parcial.
+- Reservas de 1 libro con plazo de 24 horas, cancelación (hasta 5 por mes) y retiro.
 - Recargo del 5% al retirar y deuda por reservas vencidas.
 - Baneo permanente por documento ajeno.
 - Descuentos y aumentos de 10% a 50%.
@@ -43,11 +43,11 @@ La comiquería vende manga y libros de anime solo en el local y solo en efectivo
 
 **Cuentas**
 - **RN-03:** Las cuentas solo se crean en persona en la comiquería. No existe registro online.
-- **RN-04:** El empleado pide el documento y crea la cuenta en el local con nombre, apellido, documento, correo y teléfono. El cliente elige su contraseña ahí mismo. No se envía correo ni enlace.
+- **RN-04:** El empleado pide el documento y crea la cuenta en el local con nombre, apellido, documento, fecha de nacimiento, correo y teléfono. El cliente elige su contraseña ahí mismo. No se envía correo ni enlace.
 - **RN-05:** El documento y el correo son únicos. Hay 1 sola cuenta por documento, y el documento se verifica al crearla.
-- **RN-06:** Los menores de 18 años necesitan ir con un adulto responsable al crear la cuenta y no pueden reservar libros con clasificación para mayores.
+- **RN-06:** La edad mínima para tener cuenta es 15 años. Los de 15 a 17 años necesitan ir con un adulto responsable al crear la cuenta y no pueden reservar libros para mayores (+18). Los menores de 15 no pueden tener cuenta. Solo los de 18 años o más reservan libros para mayores.
 - **RN-07:** No hay recuperación de contraseña por correo. Si el cliente la olvida, va al local y el empleado la restablece verificando su documento.
-- **RN-39:** Si el empleado ve que el documento no es de la persona que se presenta, lo informa al administrador. El administrador banea de forma permanente a quien prestó su documento, deja el motivo escrito y puede revertir el baneo.
+- **RN-39:** Si el empleado ve que el documento no es de la persona que se presenta, lo informa al administrador. El administrador banea de forma permanente a quien prestó su documento, deja el motivo escrito y puede revertir el baneo. Una cuenta baneada solo puede ver el catálogo: no puede reservar nada ni tener nada a su nombre hasta que el administrador la desbanee. Al banear, se cancelan todas sus reservas activas y los libros se liberan.
 - **RN-40:** El sistema permite como máximo 4 administradores y 10 empleados a la vez.
 
 **Catálogo y cantidad**
@@ -60,16 +60,16 @@ La comiquería vende manga y libros de anime solo en el local y solo en efectivo
 - **RN-13:** El empleado actualiza la cantidad en el instante en que ingresa mercadería o se vende un libro directo en caja, y no puede vender un libro reservado por otra persona.
 
 **Reservas**
-- **RN-14:** Cada cliente puede tener como máximo 5 reservas activas a la vez y solo 1 copia de cada libro.
+- **RN-14:** Cada reserva es de 1 libro. El cliente puede tener como máximo 5 reservas activas a la vez (5 libros) y solo 1 copia de cada libro.
 - **RN-15:** Una reserva activa es la que todavía no se retiró, no se canceló y no venció.
 - **RN-16:** El cliente tiene 24 horas corridas desde que reservó para ir al local, aunque el local esté cerrado.
 - **RN-17:** Al retirar paga el precio del libro más un 5% extra por haber reservado, todo en efectivo. El empleado busca la reserva por código o documento y la marca como retirada.
 - **RN-18:** Si no va dentro de las 24 horas, la reserva vence sola, el libro vuelve a estar disponible y el cliente queda con una deuda.
-- **RN-19:** El cliente puede cancelar su reserva en cualquier momento antes de que venza, sin costo y sin deuda. El libro se libera de inmediato.
+- **RN-19:** El cliente puede cancelar su reserva en cualquier momento antes de que venza, sin costo y sin deuda, de a 1 reserva (1 libro) por vez. El libro se libera de inmediato.
 - **RN-42:** El cliente puede cancelar como máximo 5 reservas por mes calendario. El contador se reinicia el día 1 de cada mes. En la sexta cancelación el sistema no deja cancelar: la reserva sigue activa y, si vence, genera deuda del 5% como cualquier otra.
 - **RN-20:** El precio queda fijo al reservar. Si el administrador lo sube o lo baja después, la reserva mantiene el precio original, y si el nuevo es más bajo se cobra el más bajo.
 - **RN-21:** El 5% se calcula sobre el precio que el cliente paga al retirar.
-- **RN-22:** El cliente puede retirar toda la reserva o una parte. Lo que no retira se guarda hasta cumplir sus 24 horas, el 5% se cobra solo sobre lo retirado, y lo que venza genera deuda del 5% de cada libro.
+- **RN-22:** Como cada reserva es de 1 libro, cada libro se retira por separado y paga su propio 5%. Lo que no se retira vence a las 24 horas de su propia reserva y genera deuda del 5%.
 - **RN-23:** Manda el reloj del servidor. El contador del cliente es solo una referencia. Si el plazo vence 1 segundo antes de que el empleado confirme el retiro, la reserva ya venció.
 - **RN-24:** El cliente ve sus reservas con un contador del tiempo restante y recibe un correo con un código de reserva al reservar.
 - **RN-25:** El sistema aparta el libro en el momento de confirmar la reserva. Si 2 clientes reservan la última copia, gana el que confirma primero y al otro le sale el letrero de libro ya reservado.
@@ -109,7 +109,8 @@ La comiquería vende manga y libros de anime solo en el local y solo en efectivo
 **HU-03 (cliente):** Quiero reservar un libro, para que me lo guarden hasta ir al local.
 - Dado que tengo cuenta, sin deuda y menos de 5 reservas activas, cuando reservo un libro con cantidad disponible, entonces la reserva queda activa por 24 horas y la cantidad baja de inmediato. (RN-14, RN-16, RN-10, RN-27)
 - Dado que ya tengo 5 reservas activas o ya reservé 1 copia de ese libro, cuando intento reservar, entonces el sistema no me deja. (RN-14)
-- Dado que soy menor de 18 años, cuando intento reservar un libro con clasificación para mayores, entonces no puedo. (RN-06)
+- Dado que tengo menos de 18 años, cuando intento reservar un libro para mayores, entonces no puedo. (RN-06)
+- Dado que mi cuenta está baneada, cuando intento reservar, entonces no puedo. (RN-39)
 - Dado que otro cliente confirmó antes la última copia, cuando confirmo, entonces veo el letrero de libro ya reservado. (RN-25)
 - Dado que reservé, cuando se confirma, entonces recibo un correo con el código de reserva. (RN-24, RN-34)
 
@@ -138,7 +139,9 @@ La comiquería vende manga y libros de anime solo en el local y solo en efectivo
 **HU-08 (empleado):** Quiero crear la cuenta de un cliente, para que pueda reservar.
 - Dado que el cliente está en el local con su documento, cuando cargo nombre, apellido, documento, correo y teléfono, entonces la cuenta se crea y el cliente elige su contraseña ahí mismo. (RN-03, RN-04)
 - Dado que el documento o el correo ya existen, cuando intento crear la cuenta, entonces el sistema no la crea. (RN-05)
-- Dado que el cliente es menor de 18 años, cuando crea la cuenta, entonces debe estar con un adulto responsable. (RN-06)
+- Dado que el cliente tiene de 15 a 17 años, cuando crea la cuenta, entonces debe estar con un adulto responsable. (RN-06)
+- Dado que el cliente tiene menos de 15 años, cuando intento crear la cuenta, entonces no se crea. (RN-06)
+- Dado que cargo la cuenta, cuando completo los datos, entonces pido la fecha de nacimiento. (RN-04)
 - Dado que ya hay 10 empleados, cuando el administrador intenta crear otro, entonces no puede. (RN-40)
 
 **HU-09 (empleado):** Quiero registrar el retiro y el cobro de una reserva, para entregar los libros y marcar la reserva como retirada.
@@ -147,9 +150,9 @@ La comiquería vende manga y libros de anime solo en el local y solo en efectivo
 - Dado que el precio cambió después de reservar, cuando cobro, entonces cobro el precio fijado al reservar, o el más bajo si bajó. (RN-20)
 - Dado que la reserva venció antes de mi confirmación, cuando intento marcarla, entonces no puedo. (RN-23)
 
-**HU-10 (empleado):** Quiero registrar un retiro parcial, para entregar solo los libros que el cliente se lleva ahora.
-- Dado que la reserva tiene varios libros, cuando el cliente retira solo algunos, entonces el 5% se cobra solo sobre esos. (RN-22)
-- Dado que quedan libros sin retirar, cuando se cumplen las 24 horas, entonces vencen y generan deuda del 5% de cada uno. (RN-22, RN-26)
+**HU-10 (empleado):** Quiero registrar el retiro de cada libro por separado, para entregar solo los libros que el cliente se lleva ahora.
+- Dado que el cliente tiene varias reservas activas, cuando retira 1 libro, entonces paga el precio de ese libro más el 5% y las otras reservas siguen activas. (RN-14, RN-22)
+- Dado que una de las otras reservas no se retira, cuando se cumplen sus 24 horas, entonces vence y genera deuda del 5%. (RN-22, RN-26)
 
 **HU-11 (empleado):** Quiero cobrar una deuda, para que el cliente pueda volver a reservar.
 - Dado que el cliente tiene deuda y paga en efectivo en el local, cuando la marco como pagada, entonces su cuenta queda libre para reservar. (RN-28)
@@ -185,6 +188,7 @@ La comiquería vende manga y libros de anime solo en el local y solo en efectivo
 
 **HU-19 (administrador):** Quiero banear a quien prestó su documento, para evitar cuentas falsas.
 - Dado que el empleado informó un documento ajeno, cuando confirmo el motivo, entonces la persona queda baneada de forma permanente. (RN-39)
+- Dado que baneo a un cliente con reservas activas, cuando confirmo, entonces se cancelan todas sus reservas, los libros se liberan y solo puede ver el catálogo. (RN-39)
 - Dado que me equivoqué o se aclaró el caso, cuando revierto el baneo, entonces la cuenta vuelve a funcionar. (RN-39)
 
 **HU-20 (cliente):** Quiero ver las políticas y el contacto, para saber las reglas y cómo comunicarme con la comiquería.
@@ -199,11 +203,11 @@ La comiquería vende manga y libros de anime solo en el local y solo en efectivo
 - **CB-04 (vence 1 segundo antes):** el cliente está en el local, pero el servidor ya venció la reserva. La reserva ya venció (RN-23).
 - **CB-05 (venta en caja de una copia reservada):** el empleado no puede venderla (RN-13). Si vende otra copia, actualiza la cantidad en el instante (RN-13).
 - **CB-06 (cambio de precio tras reservar):** manda el precio fijado al reservar, o el más bajo si bajó. El 5% de retiro y el de deuda salen de ese precio (RN-20, RN-21, RN-26).
-- **CB-07 (retiro parcial):** el 5% se cobra solo sobre lo retirado, y lo que queda vence a las 24 horas con deuda del 5% de cada libro (RN-22).
+- **CB-07 (varias reservas):** cada libro es una reserva con su propio plazo de 24 horas. Se retira por separado y cada uno que vence genera su deuda del 5% (RN-14, RN-22).
 - **CB-08 (deuda con reservas activas):** siguen vigentes, pero si vencen, la deuda crece (RN-29). Hasta pagar no hay reservas nuevas (RN-27).
 - **CB-09 (documento ajeno):** un cliente con deuda usa el documento de otra persona. Si el empleado lo detecta, el administrador banea de forma permanente a quien lo prestó y puede revertirlo (RN-05, RN-39).
 - **CB-10 (borrar un libro con reservas):** no se puede, solo ocultarlo (RN-12).
-- **CB-11 (menor y clasificación para mayores):** no puede reservarlo (RN-06).
+- **CB-11 (menor de 18 y libro para mayores):** no puede reservarlo (RN-06).
 - **CB-12 (6.ª reserva o 2.ª copia):** el sistema no la permite (RN-14).
 - **CB-13 (libro agotado):** se ve en el catálogo pero no se reserva (RN-11).
 - **CB-14 (cierre del local con reservas activas):** a las reservas que vencerían durante el cierre se les suman 24 horas a su vencimiento original (RN-38).
@@ -213,3 +217,5 @@ La comiquería vende manga y libros de anime solo en el local y solo en efectivo
 - **CB-18 (límite de usuarios):** al llegar a 4 administradores o a 10 empleados, el sistema no deja crear más (RN-40).
 - **CB-19 (cambio de mes):** el contador de cancelaciones vuelve a 0 el día 1 (RN-42).
 - **CB-20 (porcentaje fuera de rango):** un descuento o aumento de 5% o de 60% no se acepta (RN-43).
+- **CB-21 (menor de 15 años):** no puede tener cuenta. Con 15 a 17 años, solo con adulto responsable (RN-06).
+- **CB-22 (cuenta baneada con reservas):** se cancelan todas sus reservas, los libros se liberan y la cuenta solo ve el catálogo hasta que el administrador la desbanee (RN-39).

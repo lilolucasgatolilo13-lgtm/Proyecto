@@ -6,14 +6,14 @@ terminos que se usan en el sistema de la comiqueria y en su idea del cliente (id
 - **empleado**: usuario que atiende en el local, crea cuentas, cobra, marca retiros y deudas pagadas, y actualiza la cantidad de libros
 - **cliente**: persona con cuenta, puede ver el catalogo, reservar y cancelar reservas
 - **visitante**: persona sin cuenta, solo puede ver el catalogo
-- **adulto responsable**: persona mayor de edad que acompana al cliente menor de 18 años al crear su cuenta
+- **adulto responsable**: persona mayor de edad que acompana al cliente de 15 a 17 años al crear su cuenta, los menores de 15 no pueden tener cuenta
 
 ## catalogo
 - **catalogo**: lista publica de todos los libros que vende la comiqueria, se puede ver sin cuenta
 - **libro**: manga o libro de anime que se vende, con su titulo, tomo, autor, precio y cantidad disponible
 - **serie**: grupo de tomos de una misma obra, se muestran juntos y en orden
 - **tomo**: cada libro individual dentro de una serie
-- **clasificacion por edad**: indica para que edad es el libro, los menores no pueden reservar los de mayores
+- **clasificacion por edad**: indica para que edad es el libro, los menores de 18 no pueden reservar los libros para mayores (+18)
 - **disponible**: libro que tiene al menos una copia que no esta reservada
 - **agotado**: libro sin copias disponibles, sigue visible pero no se puede reservar
 - **cantidad disponible**: copias del libro que no estan reservadas, baja apenas alguien reserva
@@ -22,10 +22,9 @@ terminos que se usan en el sistema de la comiqueria y en su idea del cliente (id
 - **ofertas**: seccion del catalogo con los libros que tienen descuento
 
 ## reservas
-- **reserva**: pedido online para que la comiqueria guarde un libro, no se paga online
-- **reserva activa**: reserva que todavia no se retiro, no se cancelo y no vencio, cada cliente puede tener hasta 5
-- **retiro**: momento en que el cliente va al local, paga y se lleva el libro, el empleado marca la reserva como retirada
-- **retiro parcial**: retirar solo una parte de los libros de una reserva, el resto sigue guardado hasta su plazo
+- **reserva**: pedido online para que la comiqueria guarde 1 libro (1 libro = 1 reserva), no se paga online
+- **reserva activa**: reserva que todavia no se retiro, no se cancelo y no vencio, cada cliente puede tener hasta 5 (5 libros)
+- **retiro**: momento en que el cliente va al local, paga y se lleva el libro, el empleado marca la reserva como retirada, cada libro se retira por separado y paga su propio 5%
 - **plazo de reserva**: 24 horas desde que se reservo para ir a retirar
 - **vencimiento**: momento en que se acaba el plazo, la reserva se cancela sola y el libro vuelve a estar disponible
 - **cancelacion**: el cliente anula su reserva antes de que venza, sin costo y sin deuda, el libro se libera de inmediato
@@ -45,6 +44,7 @@ terminos que se usan en el sistema de la comiqueria y en su idea del cliente (id
 - **cuenta**: perfil del cliente en el sistema, solo se crea en persona en el local
 - **documento**: documento de identidad del cliente, es unico y se verifica al crear la cuenta
 - **alta de cuenta**: proceso en el que el empleado crea la cuenta con los datos del cliente
+- **baneo**: bloqueo permanente de una cuenta, solo puede ver el catalogo, se le cancelan todas las reservas y solo el administrador lo revierte
 - **recuperacion de contraseña**: cambio de contraseña mediante un correo
 
 ## precios

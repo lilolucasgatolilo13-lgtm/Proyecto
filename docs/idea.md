@@ -15,18 +15,19 @@ somos una comiqueria de anime y manga que trabaja de forma fisica y solo con pag
 
 - **administradores** tienen acceso total al sistema, administran el catalogo y el stock, publican avisos, crean y editan empleados y pueden ver el registro de actividad
 - **empleados** atienden en el local, crean las cuentas de los clientes, marcan las reservas como retiradas al cobrar, cobran y marcan las deudas como pagadas, y actualizan la cantidad de libros
-- **clientes** con cuenta pueden ver el catalogo, reservar libros, cancelar sus reservas y ver su historial, pueden tener hasta 5 reservas activas a la vez
+- **clientes** con cuenta pueden ver el catalogo, reservar libros, cancelar sus reservas y ver su historial, pueden tener hasta 5 reservas activas a la vez (5 libros)
 - **visitantes** sin cuenta solo pueden ver el catalogo, para reservar necesitan una cuenta
 - [NUEVO] el sistema permite como maximo 4 administradores y 10 empleados a la vez
 
 ## cuentas
 - las cuentas solo se crean en persona en la comiqueria, no existe el registro online
-- [CAMBIO] el empleado pide el documento del cliente y crea la cuenta en el local con nombre, apellido, documento, correo y telefono, y el cliente elige su contraseña ahi mismo, no se envia ningun correo ni enlace
+- [CAMBIO] el empleado pide el documento del cliente y crea la cuenta en el local con nombre, apellido, documento, fecha de nacimiento, correo y telefono, y el cliente elige su contraseña ahi mismo, no se envia ningun correo ni enlace
 - el documento y el correo son unicos, no puede haber 2 cuentas con los mismos datos
 - [NUEVO] el documento se verifica en el momento de crear la cuenta, 1 sola cuenta por documento
 - [NUEVO] si el empleado ve que el documento no es de la persona que se presenta, lo informa al administrador, quien banea de forma permanente a la persona que presto su documento, deja el motivo escrito y puede revertir el baneo
+- [NUEVO] una cuenta baneada solo puede ver el catalogo, no puede reservar nada ni tener nada a su nombre hasta que el administrador la desbanee, al banear se cancelan todas sus reservas activas y los libros se liberan
 - [CAMBIO] no hay recuperacion de contraseña por correo, si el cliente la olvida va al local y el empleado la restablece verificando su documento
-- los clientes menores de 18 años necesitan ir con un adulto responsable al crear la cuenta, y no pueden reservar libros con clasificacion para mayores
+- [CAMBIO] la edad minima para tener cuenta es 15 años, los de 15 a 17 años necesitan ir con un adulto responsable al crear la cuenta y no pueden reservar libros para mayores, solo los de 18 años o mas los reservan, los menores de 15 no pueden tener cuenta
 
 ## catalogo
 - cada libro tiene titulo, serie, numero de tomo, autor, editorial, idioma, genero, clasificacion por edad, imagen de portada, sinopsis, precio y cantidad disponible
@@ -40,20 +41,20 @@ somos una comiqueria de anime y manga que trabaja de forma fisica y solo con pag
 - [CAMBIO] el empleado actualiza la cantidad en el instante en que ingresa mercaderia o se vende un libro directo en caja, y no puede vender un libro que este reservado por otra persona
 
 ## reservas
-- el cliente reserva un libro para que se lo guarden, sin pagar nada online
-- cada cliente puede tener como maximo 5 reservas activas a la vez, y solo 1 copia de cada libro
+- el cliente reserva un libro para que se lo guarden, sin pagar nada online, [CAMBIO] 1 libro es 1 reserva y 2 libros son 2 reservas
+- [CAMBIO] cada cliente puede tener como maximo 5 reservas activas a la vez (5 libros), y solo 1 copia de cada libro
 - [NUEVO] una reserva activa es la que todavia no se retiro, no se cancelo y no vencio
 - [CAMBIO] el cliente tiene 24 horas corridas desde que reservo para ir al local, aunque el local este cerrado, al ir paga el precio del libro mas un 5% extra por haber reservado, todo en efectivo
 - si no va dentro de las 24 horas, la reserva vence sola, el libro vuelve a estar disponible y el cliente queda con una deuda
-- el cliente puede cancelar su reserva en cualquier momento antes de que venza, sin costo y sin deuda, y el libro se libera de inmediato
+- el cliente puede cancelar su reserva en cualquier momento antes de que venza, sin costo y sin deuda, y el libro se libera de inmediato, [CAMBIO] se cancela 1 libro (1 reserva) a la vez
 - [NUEVO] el cliente puede cancelar como maximo 5 reservas por mes calendario, el contador se reinicia el dia 1 de cada mes
 - [NUEVO] en la sexta cancelacion del mes el sistema no deja cancelar, la reserva sigue activa y si vence genera deuda del 5% como cualquier otra
 - el precio queda fijo al momento de reservar, si el administrador lo sube o lo baja despues, la reserva mantiene el precio original, si el precio nuevo es mas bajo se le cobra el mas bajo
 - [NUEVO] el 5% se calcula sobre el precio que el cliente paga al retirar (el precio fijado al reservar, o el mas bajo si bajo)
 - el cliente ve en su cuenta sus reservas con un contador del tiempo que le queda, y recibe un correo con un codigo de reserva al reservar
 - el empleado busca la reserva por codigo o documento, cobra en efectivo (precio mas el 5%) y la marca como retirada
-- el cliente puede retirar toda la reserva o solo una parte, lo que no retire se sigue guardando hasta cumplir sus 24 horas, y el 5% solo se cobra sobre lo que se retira
-- [NUEVO] los libros de un retiro parcial que no se retiran dentro de las 24 horas vencen y generan una deuda del 5% de cada libro
+- [CAMBIO] como cada reserva es de 1 libro, cada libro se retira por separado y paga su propio 5%
+- [CAMBIO] el libro que no se retira dentro de las 24 horas de su propia reserva vence y genera una deuda del 5%
 - la hora que manda siempre es la del servidor, el contador del cliente es solo una referencia, si el plazo vence 1 segundo antes de que el empleado confirme el retiro, la reserva ya vencio
 
 ## 2 reservas al mismo libro
