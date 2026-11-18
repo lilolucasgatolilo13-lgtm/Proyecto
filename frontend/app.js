@@ -712,7 +712,21 @@ async function adminCrearLibro() {
   try {
     const res = await apiFetch('/libros', {
       method: 'POST',
-      body: { titulo, serie, numero_tomo, autor, editorial, idioma, genero, clasificacion_edad, precio, cantidad_total, portada_url, sinopsis }
+      body: { 
+        titulo, 
+        serie, 
+        serie_nueva: serie, 
+        numero_tomo: numero_tomo || 1, 
+        autor, 
+        editorial, 
+        idioma, 
+        genero, 
+        clasificacion_edad, 
+        precio, 
+        cantidad_total, 
+        portada_url: portada_url || '', 
+        sinopsis 
+      }
     });
     const data = await res.json();
     if (!res.ok) {
@@ -720,6 +734,11 @@ async function adminCrearLibro() {
       return;
     }
     mostrarMensaje(`Libro "${data.titulo}" creado exitosamente`, 'success');
+    // Limpiar formulario
+    ['adm-lib-titulo', 'adm-lib-serie', 'adm-lib-tomo', 'adm-lib-autor', 'adm-lib-editorial', 'adm-lib-idioma', 'adm-lib-genero', 'adm-lib-precio', 'adm-lib-cantidad', 'adm-lib-portada', 'adm-lib-sinopsis'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
     adminListarLibros();
   } catch (e) {
     mostrarMensaje(e.message, 'error');

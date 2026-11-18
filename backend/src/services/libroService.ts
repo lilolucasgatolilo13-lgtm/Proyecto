@@ -63,6 +63,7 @@ export class LibroService {
     titulo: string;
     serie_id?: number;
     serie_nueva?: string;
+    serie?: string | number;
     numero_tomo?: number;
     autor?: string;
     editorial?: string;
@@ -87,14 +88,21 @@ export class LibroService {
       throw new Error('La URL de portada debe comenzar con http:// o https://');
     }
 
-    // Resolución de serie
+    // Resolución de serie (soporta serie_id, serie_nueva o serie por nombre/ID)
     let serieId = datos.serie_id;
-    if (datos.serie_nueva && datos.serie_nueva.trim().length > 0) {
-      const existente = this.libroRepo.obtenerSeriePorNombre(datos.serie_nueva.trim());
+
+    const nombreSerie = (typeof datos.serie_nueva === 'string' && datos.serie_nueva.trim().length > 0)
+      ? datos.serie_nueva.trim()
+      : (typeof datos.serie === 'string' && datos.serie.trim().length > 0)
+        ? datos.serie.trim()
+        : undefined;
+
+    if (!serieId && nombreSerie) {
+      const existente = this.libroRepo.obtenerSeriePorNombre(nombreSerie);
       if (existente) {
         serieId = existente.id;
       } else {
-        const nueva = this.libroRepo.crearSerie(datos.serie_nueva.trim());
+        const nueva = this.libroRepo.crearSerie(nombreSerie);
         serieId = nueva.id;
       }
     }
