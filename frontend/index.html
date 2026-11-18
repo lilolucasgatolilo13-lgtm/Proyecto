@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Comiquería - Catálogo y Reservas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Rajdhani:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: 'Space Grotesk', -apple-system, sans-serif;
+      background: radial-gradient(circle at 12% 18%, rgba(108, 92, 231, 0.22) 0%, transparent 40%),
+                  radial-gradient(circle at 88% 82%, rgba(233, 69, 96, 0.20) 0%, transparent 45%),
+                  radial-gradient(circle at 50% 50%, rgba(30, 39, 73, 0.4) 0%, transparent 60%),
+                  linear-gradient(145deg, #07090e 0%, #0f1220 50%, #0a0b14 100%);
+      background-attachment: fixed;
+      color: #e2e8f0;
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    /* Scrollbar personalizada */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #07090e; }
+    ::-webkit-scrollbar-thumb { background: #2a3356; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #e94560; }
+
+    header {
+      background: rgba(10, 12, 22, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 1.2rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+    }
+    header h1 {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: linear-gradient(135deg, #ffffff 15%, #ff7675 60%, #a29bfe 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 25px rgba(233, 69, 96, 0.35);
+    }
+    header p {
+      font-size: 0.88rem;
+      color: #94a3b8;
+      font-style: italic;
+      margin-top: 0.2rem;
+      letter-spacing: 0.4px;
+    }
+    .usuario-badge {
+      font-size: 0.88rem;
+      background: rgba(22, 27, 46, 0.85);
+      padding: 0.4rem 1rem;
+      border-radius: 30px;
+      border: 1px solid rgba(233, 69, 96, 0.4);
+      box-shadow: 0 0 15px rgba(233, 69, 96, 0.15);
+      color: #cbd5e1;
+    }
+    .usuario-badge strong { color: #ff7675; font-family: 'Rajdhani', sans-serif; font-size: 1rem; }
+
+    nav {
+      background: rgba(14, 17, 32, 0.8);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      padding: 0.5rem 1.5rem;
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    nav a {
+      color: #cbd5e1;
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-size: 0.92rem;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 600;
+      letter-spacing: 0.8px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      border: 1px solid transparent;
+    }
+    nav a:hover {
+      background: rgba(108, 92, 231, 0.22);
+      border-color: rgba(108, 92, 231, 0.45);
+      color: #fff;
+      box-shadow: 0 0 14px rgba(108, 92, 231, 0.35);
+      transform: translateY(-1px);
+    }
+    nav a.active {
+      background: linear-gradient(135deg, #e94560 0%, #6c5ce7 100%);
+      color: #fff;
+      font-weight: 700;
+      box-shadow: 0 0 18px rgba(233, 69, 96, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+    }
+
+    .container { max-width: 1150px; margin: 1.8rem auto; padding: 0 1.2rem; }
+    
+    /* Efecto Glassmorphism en tarjetas */
+    .card {
+      background: rgba(18, 22, 38, 0.72);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-radius: 12px;
+      padding: 1.6rem;
+      margin-bottom: 1.8rem;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.38);
+    }
+    
+    h2 {
+      margin-bottom: 1.2rem;
+      color: #f8fafc;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.55rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 0.6rem;
+    }
+    h3 {
+      margin-bottom: 0.6rem;
+      color: #f1f5f9;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.25rem;
+      letter-spacing: 0.8px;
+    }
+
+    /* Alertas */
+    .alert { padding: 0.9rem 1.2rem; border-radius: 8px; margin-bottom: 1.2rem; font-size: 0.94rem; backdrop-filter: blur(10px); }
+    .alert-error { background: rgba(220, 53, 69, 0.18); color: #ff8585; border: 1px solid rgba(220, 53, 69, 0.4); }
+    .alert-success { background: rgba(40, 167, 69, 0.18); color: #7bed9f; border: 1px solid rgba(40, 167, 69, 0.4); }
+    .alert-info { background: rgba(23, 162, 184, 0.18); color: #70a1ff; border: 1px solid rgba(23, 162, 184, 0.4); }
+    .alert-warning { background: rgba(255, 193, 7, 0.18); color: #ffeaa7; border: 1px solid rgba(255, 193, 7, 0.4); }
+
+    /* Filtros y buscador estilo cósmico */
+    .filtros-box {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.9rem;
+      align-items: center;
+      margin-bottom: 1.4rem;
+      background: rgba(13, 16, 28, 0.7);
+      backdrop-filter: blur(12px);
+      padding: 1.1rem;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+    }
+    .filtros-box input, .filtros-box select {
+      background: rgba(22, 27, 46, 0.85);
+      color: #f8fafc;
+      padding: 0.6rem 0.9rem;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 6px;
+      font-size: 0.92rem;
+      font-family: inherit;
+      transition: all 0.2s ease;
+    }
+    .filtros-box input:focus, .filtros-box select:focus {
+      outline: none;
+      border-color: #e94560;
+      box-shadow: 0 0 12px rgba(233, 69, 96, 0.35);
+    }
+    .filtros-box input[type="text"] { flex: 1; min-width: 220px; }
+    .filtros-box select option { background: #121626; color: #fff; }
+
+    /* Grilla de libros con tarjetas translúcidas */
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.4rem; }
+    
+    .libro-card {
+      background: rgba(23, 28, 50, 0.65);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.25s ease, border-color 0.25s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .libro-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, #6c5ce7, #e94560);
+      opacity: 0.6;
+      transition: opacity 0.25s ease;
+    }
+    .libro-card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(233, 69, 96, 0.5);
+      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.45), 0 0 18px rgba(233, 69, 96, 0.25);
+    }
+    .libro-card:hover::before { opacity: 1; }
+
+    .libro-card h3 {
+      color: #fff;
+      font-size: 1.35rem;
+      margin-bottom: 0.5rem;
+      font-family: 'Rajdhani', sans-serif;
+      letter-spacing: 0.8px;
+    }
+    .libro-meta {
+      font-size: 0.86rem;
+      color: #94a3b8;
+      margin-bottom: 0.8rem;
+    }
+    .libro-meta div {
+      margin-bottom: 0.3rem;
+      font-style: italic;
+    }
+    .libro-meta strong {
+      font-style: normal;
+      color: #cbd5e1;
+      font-weight: 600;
+    }
+
+    /* Badges cósmicos */
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.6rem;
+      font-size: 0.76rem;
+      border-radius: 4px;
+      font-weight: 700;
+      font-family: 'Rajdhani', sans-serif;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+    }
+    .badge-atp { background: rgba(46, 213, 115, 0.16); color: #2ed573; border: 1px solid rgba(46, 213, 115, 0.4); }
+    .badge-18 { background: rgba(255, 71, 87, 0.18); color: #ff4757; border: 1px solid rgba(255, 71, 87, 0.5); box-shadow: 0 0 10px rgba(255, 71, 87, 0.2); }
+    .badge-oferta { background: rgba(255, 165, 2, 0.2); color: #ffa502; border: 1px solid rgba(255, 165, 2, 0.5); box-shadow: 0 0 12px rgba(255, 165, 2, 0.25); }
+    .badge-novedad { background: rgba(30, 144, 255, 0.2); color: #70a1ff; border: 1px solid rgba(30, 144, 255, 0.5); box-shadow: 0 0 12px rgba(30, 144, 255, 0.25); }
+
+    .precio-box {
+      margin: 0.8rem 0;
+      font-size: 1.25rem;
+      font-weight: bold;
+      display: flex;
+      align-items: baseline;
+      gap: 0.5rem;
+    }
+    .precio-original {
+      text-decoration: line-through;
+      color: #64748b;
+      font-size: 0.95rem;
+      font-weight: normal;
+      font-style: italic;
+    }
+    .precio-vigente {
+      color: #ff4757;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.45rem;
+      font-weight: 700;
+      text-shadow: 0 0 12px rgba(255, 71, 87, 0.4);
+    }
+    
+    .disponibilidad {
+      font-size: 0.88rem;
+      font-weight: 600;
+      margin-bottom: 0.9rem;
+      font-family: 'Rajdhani', sans-serif;
+      letter-spacing: 0.6px;
+    }
+    .disponible { color: #2ed573; text-shadow: 0 0 8px rgba(46, 213, 115, 0.3); }
+    .agotado { color: #ff4757; text-shadow: 0 0 8px rgba(255, 71, 87, 0.3); }
+
+    /* Botones vibrantes */
+    .btn {
+      background: linear-gradient(135deg, #1e2540 0%, #161b30 100%);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 0.6rem 1.1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.92rem;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      transition: all 0.25s ease;
+    }
+    .btn:hover {
+      background: linear-gradient(135deg, #2b355c 0%, #1e2540 100%);
+      border-color: rgba(255, 255, 255, 0.25);
+      box-shadow: 0 0 14px rgba(255, 255, 255, 0.15);
+      transform: translateY(-1px);
+    }
+    .btn:disabled {
+      background: rgba(30, 36, 60, 0.4) !important;
+      cursor: not-allowed;
+      color: #64748b;
+      border-color: rgba(255, 255, 255, 0.04);
+      box-shadow: none;
+    }
+    .btn-success {
+      background: linear-gradient(135deg, #2ed573 0%, #10ac84 100%);
+      border: 1px solid rgba(46, 213, 115, 0.4);
+      box-shadow: 0 0 14px rgba(46, 213, 115, 0.35);
+      color: #05160d;
+    }
+    .btn-success:hover {
+      background: linear-gradient(135deg, #7bed9f 0%, #2ed573 100%);
+      box-shadow: 0 0 20px rgba(46, 213, 115, 0.6);
+      color: #000;
+    }
+    .btn-danger {
+      background: linear-gradient(135deg, #ff4757 0%, #e94560 100%);
+      border: 1px solid rgba(255, 71, 87, 0.4);
+      box-shadow: 0 0 14px rgba(255, 71, 87, 0.35);
+      color: #fff;
+    }
+    .btn-danger:hover {
+      background: linear-gradient(135deg, #ff6b81 0%, #ff4757 100%);
+      box-shadow: 0 0 20px rgba(255, 71, 87, 0.6);
+    }
+    .btn-sm { padding: 0.4rem 0.8rem; font-size: 0.84rem; }
+
+    /* Formularios con transparencia */
+    .form-group { margin-bottom: 1.1rem; }
+    .form-group label {
+      display: block;
+      margin-bottom: 0.35rem;
+      font-weight: 600;
+      font-size: 0.92rem;
+      color: #cbd5e1;
+      font-family: 'Rajdhani', sans-serif;
+      letter-spacing: 0.6px;
+    }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%;
+      padding: 0.65rem 0.9rem;
+      background: rgba(14, 18, 32, 0.85);
+      color: #f8fafc;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 6px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      transition: all 0.2s ease;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      outline: none;
+      border-color: #e94560;
+      box-shadow: 0 0 14px rgba(233, 69, 96, 0.35);
+    }
+    .form-group textarea { resize: vertical; min-height: 85px; }
+    .form-row { display: flex; gap: 1.2rem; flex-wrap: wrap; }
+    .form-row .form-group { flex: 1; min-width: 200px; }
+
+    /* Paneles de administración y empleado */
+    .panel-layout { display: flex; gap: 1.6rem; flex-wrap: wrap; }
+    .panel-menu {
+      width: 230px;
+      background: rgba(15, 18, 33, 0.7);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      overflow: hidden;
+      height: fit-content;
+    }
+    .panel-menu button {
+      width: 100%;
+      text-align: left;
+      padding: 0.85rem 1.1rem;
+      border: none;
+      background: transparent;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      cursor: pointer;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 600;
+      letter-spacing: 0.8px;
+      color: #cbd5e1;
+      font-size: 0.96rem;
+      transition: all 0.2s ease;
+    }
+    .panel-menu button:hover {
+      background: rgba(108, 92, 231, 0.18);
+      color: #fff;
+    }
+    .panel-menu button.active {
+      background: linear-gradient(135deg, #e94560 0%, #6c5ce7 100%);
+      color: #fff;
+      font-weight: 700;
+      box-shadow: 0 0 14px rgba(233, 69, 96, 0.4);
+    }
+    .panel-contenido { flex: 1; min-width: 290px; }
+
+    /* Tablas oscuras estilo cyber */
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.92rem; }
+    th, td { padding: 0.75rem 0.9rem; text-align: left; border-bottom: 1px solid rgba(255, 255, 255, 0.06); }
+    th {
+      background: rgba(14, 18, 32, 0.9);
+      color: #a29bfe;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      font-size: 0.84rem;
+    }
+    tr:hover { background: rgba(255, 255, 255, 0.03); }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>📚 Comiquería</h1>
+      <p>Catálogo de manga y anime — Reservas de 24 horas — Pago en efectivo en el local</p>
+    </div>
+    <div id="badge-usuario" class="usuario-badge hidden">
+      Sesión: <strong id="nombre-usuario"></strong> (<span id="rol-usuario"></span>)
+    </div>
+  </header>
+
+  <nav>
+    <a onclick="navegar('catalogo')" id="nav-catalogo" class="active">Catálogo</a>
+    <a onclick="navegar('ofertas')" id="nav-ofertas">Ofertas</a>
+    <a onclick="navegar('novedades')" id="nav-novedades">Novedades</a>
+    <a onclick="navegar('misreservas')" id="nav-misreservas" class="hidden">Mis Reservas</a>
+    <a onclick="navegar('empleado')" id="nav-empleado" class="hidden">Panel Empleado</a>
+    <a onclick="navegar('admin')" id="nav-admin" class="hidden">Panel Admin</a>
+    <a onclick="navegar('avisos')" id="nav-avisos">Avisos</a>
+    <a onclick="navegar('contacto')" id="nav-contacto">Contacto y Horario</a>
+    <a onclick="navegar('politicas')" id="nav-politicas">Políticas</a>
+    <a onclick="navegar('login')" id="nav-login">Iniciar Sesión</a>
+    <a onclick="cerrarSesion()" id="nav-logout" class="hidden">Cerrar Sesión</a>
+  </nav>
+
+  <div class="container">
+    <div id="mensaje-global"></div>
+
+    <!-- SECCIÓN: Catálogo / Búsqueda -->
+    <section id="sec-catalogo" class="card">
+      <h2 id="catalogo-titulo">Catálogo de Libros</h2>
+      
+      <div id="bloque-deuda-alerta" class="alert alert-warning hidden"></div>
+
+      <div class="filtros-box">
+        <input type="text" id="filtro-buscar" placeholder="Buscar por título, autor o serie..." oninput="filtrarCatalogo()">
+        <select id="filtro-genero" onchange="filtrarCatalogo()">
+          <option value="">Todos los géneros</option>
+        </select>
+        <select id="filtro-editorial" onchange="filtrarCatalogo()">
+          <option value="">Todas las editoriales</option>
+        </select>
+        <select id="filtro-disponibilidad" onchange="filtrarCatalogo()">
+          <option value="">Todos</option>
+          <option value="disponibles">Solo disponibles</option>
+          <option value="agotados">Agotados</option>
+        </select>
+      </div>
+
+      <div id="grilla-catalogo" class="grid"></div>
+    </section>
+
+    <!-- SECCIÓN: Mis Reservas -->
+    <section id="sec-misreservas" class="card hidden">
+      <h2>Mis Reservas Activas</h2>
+      <div id="deuda-cliente-box" class="alert alert-warning hidden"></div>
+      <div id="lista-reservas"></div>
+    </section>
+
+    <!-- SECCIÓN: Login -->
+    <section id="sec-login" class="card hidden" style="max-width: 440px; margin: 2rem auto;">
+      <h2>Iniciar Sesión</h2>
+      <div class="form-group">
+        <label>Documento</label>
+        <input type="text" id="login-documento" placeholder="Ej: 40111222">
+      </div>
+      <div class="form-group">
+        <label>Contraseña</label>
+        <input type="password" id="login-contrasena" placeholder="••••••••">
+      </div>
+      <button class="btn btn-success" style="width:100%" onclick="login()">Ingresar</button>
+      <p style="font-size:0.85rem; color:#666; margin-top:1rem; text-align:center;">
+        Nota: Por política del local ([RN-03]), las cuentas de cliente se crean únicamente de forma presencial en la comiquería.
+      </p>
+    </section>
+
+    <!-- SECCIÓN: Panel de Empleado -->
+    <section id="sec-empleado" class="card hidden">
+      <h2>Panel del Empleado</h2>
+      <div class="panel-layout">
+        <div class="panel-menu">
+          <button onclick="verSubSeccionEmpleado('cuentas')" id="btn-emp-cuentas" class="active">Cuentas</button>
+          <button onclick="verSubSeccionEmpleado('retiros')" id="btn-emp-retiros">Retiros y Cobro</button>
+          <button onclick="verSubSeccionEmpleado('deudas')" id="btn-emp-deudas">Cobro de Deudas</button>
+          <button onclick="verSubSeccionEmpleado('cantidad')" id="btn-emp-cantidad">Cantidad / Stock</button>
+          <button onclick="verSubSeccionEmpleado('documentos')" id="btn-emp-documentos">Documentos</button>
+        </div>
+
+        <div class="panel-contenido">
+          <!-- Sub: Cuentas -->
+          <div id="emp-sub-cuentas">
+            <h3>Crear Cuenta de Cliente (Presencial)</h3>
+            <div class="form-row">
+              <div class="form-group"><label>Nombre</label><input type="text" id="emp-cli-nombre"></div>
+              <div class="form-group"><label>Apellido</label><input type="text" id="emp-cli-apellido"></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label>Documento</label><input type="text" id="emp-cli-doc"></div>
+              <div class="form-group"><label>Correo</label><input type="email" id="emp-cli-correo"></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label>Teléfono</label><input type="text" id="emp-cli-tel"></div>
+              <div class="form-group"><label>Fecha Nacimiento</label><input type="date" id="emp-cli-fnac"></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label>Contraseña</label><input type="password" id="emp-cli-pass"></div>
+              <div class="form-group" style="display:flex; align-items:center; gap:0.5rem; margin-top:1.5rem;">
+                <input type="checkbox" id="emp-cli-adulto" style="width:auto;">
+                <label for="emp-cli-adulto" style="margin:0; font-weight:normal;">Acompañado por adulto responsable (para 15-17 años)</label>
+              </div>
+            </div>
+            <button class="btn btn-success" onclick="empleadoCrearCuenta()">Crear Cuenta</button>
+
+            <hr style="margin: 1.5rem 0;">
+            <h3>Restablecer Contraseña</h3>
+            <div class="form-row">
+              <div class="form-group"><label>ID o Documento de Usuario</label><input type="text" id="emp-rest-doc"></div>
+              <div class="form-group"><label>Nueva Contraseña</label><input type="password" id="emp-rest-pass"></div>
+            </div>
+            <button class="btn" onclick="empleadoRestablecerContrasena()">Restablecer Contraseña</button>
+          </div>
+
+          <!-- Sub: Retiros -->
+          <div id="emp-sub-retiros" class="hidden">
+            <h3>Buscar y Retirar Reserva</h3>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Buscar por Código o Documento</label>
+                <input type="text" id="emp-retiro-busqueda" placeholder="Ej: RES-XXX o 40111222">
+              </div>
+            </div>
+            <button class="btn" onclick="empleadoBuscarReserva()">Buscar Reserva</button>
+            <div id="emp-resultado-busqueda" style="margin-top:1rem;"></div>
+          </div>
+
+          <!-- Sub: Deudas -->
+          <div id="emp-sub-deudas" class="hidden">
+            <h3>Cobrar Deuda en Efectivo</h3>
+            <div class="form-group">
+              <label>ID de Deuda</label>
+              <input type="number" id="emp-deuda-id" placeholder="Ej: 1">
+            </div>
+            <button class="btn btn-success" onclick="empleadoCobrarDeuda()">Registrar Pago en Efectivo</button>
+          </div>
+
+          <!-- Sub: Cantidad -->
+          <div id="emp-sub-cantidad" class="hidden">
+            <h3>Actualizar Cantidad de Copias</h3>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Seleccionar Libro</label>
+                <select id="emp-stock-libro"></select>
+              </div>
+              <div class="form-group">
+                <label>Nueva Cantidad Total</label>
+                <input type="number" id="emp-stock-cant" min="0">
+              </div>
+            </div>
+            <button class="btn" onclick="empleadoActualizarStock()">Actualizar Cantidad</button>
+          </div>
+
+          <!-- Sub: Documentos -->
+          <div id="emp-sub-documentos" class="hidden">
+            <h3>Informar Documento Ajeno</h3>
+            <div class="form-group">
+              <label>ID o Documento del Usuario</label>
+              <input type="text" id="emp-doc-usuario">
+            </div>
+            <button class="btn btn-danger" onclick="empleadoInformarDocumento()">Informar a Administración</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCIÓN: Panel de Administrador -->
+    <section id="sec-admin" class="card hidden">
+      <h2>Panel del Administrador</h2>
+      <div class="panel-layout">
+        <div class="panel-menu">
+          <button onclick="verSubSeccionAdmin('libros')" id="btn-adm-libros" class="active">Libros</button>
+          <button onclick="verSubSeccionAdmin('precios')" id="btn-adm-precios">Precios y Ofertas</button>
+          <button onclick="verSubSeccionAdmin('avisos')" id="btn-adm-avisos">Avisos y Cierre</button>
+          <button onclick="verSubSeccionAdmin('deudas')" id="btn-adm-deudas">Deudas y Perdón</button>
+          <button onclick="verSubSeccionAdmin('cuentas')" id="btn-adm-cuentas">Cuentas y Personal</button>
+          <button onclick="verSubSeccionAdmin('actividad')" id="btn-adm-actividad">Registro Actividad</button>
+        </div>
+
+        <div class="panel-contenido">
+          <!-- Sub: Libros -->
+          <div id="adm-sub-libros">
+            <h3>Cargar Nuevo Libro</h3>
+            <div class="form-row">
+              <div class="form-group"><label>Título</label><input type="text" id="adm-lib-titulo"></div>
+              <div class="form-group"><label>Serie</label><input type="text" id="adm-lib-serie" placeholder="Nombre de serie"></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label>Tomo N°</label><input type="number" id="adm-lib-tomo" value="1"></div>
+              <div class="form-group"><label>Autor</label><input type="text" id="adm-lib-autor"></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label>Editorial</label><input type="text" id="adm-lib-editorial"></div>
+              <div class="form-group"><label>Idioma</label><input type="text" id="adm-lib-idioma" value="Español"></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label>Género</label><input type="text" id="adm-lib-genero"></div>
+              <div class="form-group">
+                <label>Clasificación Edad</label>
+                <select id="adm-lib-edad">
+                  <option value="ATP">ATP</option>
+                  <option value="+13">+13</option>
+                  <option value="+16">+16</option>
+                  <option value="+18">+18</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label>Precio ($)</label><input type="number" id="adm-lib-precio"></div>
+              <div class="form-group"><label>Cantidad Copias</label><input type="number" id="adm-lib-cantidad" value="1"></div>
+            </div>
+            <div class="form-group"><label>URL Portada</label><input type="text" id="adm-lib-portada" placeholder="https://..."></div>
+            <div class="form-group"><label>Sinopsis</label><textarea id="adm-lib-sinopsis"></textarea></div>
+            <button class="btn btn-success" onclick="adminCrearLibro()">Cargar Libro</button>
+
+            <hr style="margin:1.5rem 0;">
+            <h3>Gestión Rápida de Libros Existentes</h3>
+            <div id="adm-tabla-libros"></div>
+          </div>
+
+          <!-- Sub: Precios y Ofertas -->
+          <div id="adm-sub-precios" class="hidden">
+            <h3>Crear Descuento o Aumento</h3>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Tipo</label>
+                <select id="adm-desc-tipo">
+                  <option value="descuento">Descuento (Oferta)</option>
+                  <option value="aumento">Aumento</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Porcentaje (10% a 50%)</label>
+                <input type="number" id="adm-desc-porcentaje" placeholder="Ej: 20" min="10" max="50">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Alcance</label>
+                <select id="adm-desc-alcance">
+                  <option value="catalogo">Todo el Catálogo</option>
+                  <option value="libro">Un Libro Específico</option>
+                  <option value="serie">Una Serie</option>
+                  <option value="editorial">Una Editorial</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Referencia (ID / Nombre según alcance)</label>
+                <input type="text" id="adm-desc-ref" placeholder="ID de libro, serie o nombre editorial">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label>Fecha Inicio</label><input type="date" id="adm-desc-inicio"></div>
+              <div class="form-group"><label>Fecha Fin</label><input type="date" id="adm-desc-fin"></div>
+            </div>
+            <button class="btn btn-success" onclick="adminCrearDescuento()">Aplicar Regla de Precio</button>
+          </div>
+
+          <!-- Sub: Avisos y Cierre -->
+          <div id="adm-sub-avisos" class="hidden">
+            <h3>Publicar Aviso (Visible por 7 días)</h3>
+            <div class="form-group"><label>Título</label><input type="text" id="adm-aviso-titulo"></div>
+            <div class="form-group"><label>Texto</label><textarea id="adm-aviso-texto"></textarea></div>
+            <button class="btn" onclick="adminPublicarAviso()">Publicar Aviso</button>
+
+            <hr style="margin:1.5rem 0;">
+            <h3>Cierre Extraordinario del Local</h3>
+            <p style="font-size:0.85rem; color:#666; margin-bottom:0.8rem;">
+              Las reservas activas que venzan ese día se extenderán 24 horas y se enviará aviso por correo a los afectados.
+            </p>
+            <div class="form-group">
+              <label>Fecha de Cierre (YYYY-MM-DD)</label>
+              <input type="date" id="adm-cierre-fecha">
+            </div>
+            <button class="btn btn-danger" onclick="adminRegistrarCierre()">Registrar Cierre del Local</button>
+          </div>
+
+          <!-- Sub: Deudas y Perdón -->
+          <div id="adm-sub-deudas" class="hidden">
+            <h3>Perdonar Deuda (con Motivo)</h3>
+            <div class="form-group"><label>ID de Deuda</label><input type="number" id="adm-deuda-id"></div>
+            <div class="form-group"><label>Motivo Obligatorio</label><textarea id="adm-deuda-motivo" placeholder="Explique la justificación..."></textarea></div>
+            <button class="btn" onclick="adminPerdonarDeuda()">Perdonar Deuda</button>
+          </div>
+
+          <!-- Sub: Cuentas y Personal -->
+          <div id="adm-sub-cuentas" class="hidden">
+            <h3>Baneo de Cuenta de Cliente</h3>
+            <div class="form-group"><label>ID de Usuario</label><input type="number" id="adm-baneo-id"></div>
+            <div class="form-group"><label>Motivo del Baneo</label><input type="text" id="adm-baneo-motivo" placeholder="Ej: documento prestado"></div>
+            <div style="display:flex; gap:0.5rem;">
+              <button class="btn btn-danger" onclick="adminBanear()">Banear Cuenta</button>
+              <button class="btn" onclick="adminRevertirBaneo()">Revertir Baneo</button>
+            </div>
+
+            <hr style="margin:1.5rem 0;">
+            <h3>Crear Empleado o Administrador (Límites: máx 10 empleados, 4 administradores)</h3>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Rol</label>
+                <select id="adm-pers-rol">
+                  <option value="empleado">Empleado</option>
+                  <option value="administrador">Administrador</option>
+                </select>
+              </div>
+              <div class="form-group"><label>Documento</label><input type="text" id="adm-pers-doc"></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label>Nombre</label><input type="text" id="adm-pers-nombre"></div>
+              <div class="form-group"><label>Apellido</label><input type="text" id="adm-pers-apellido"></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label>Correo</label><input type="email" id="adm-pers-correo"></div>
+              <div class="form-group"><label>Teléfono</label><input type="text" id="adm-pers-tel"></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label>Fecha Nacimiento</label><input type="date" id="adm-pers-fnac"></div>
+              <div class="form-group"><label>Contraseña</label><input type="password" id="adm-pers-pass"></div>
+            </div>
+            <button class="btn btn-success" onclick="adminCrearPersonal()">Crear Personal</button>
+          </div>
+
+          <!-- Sub: Registro Actividad -->
+          <div id="adm-sub-actividad" class="hidden">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <h3>Auditoría de Actividad (Últimos 30 días)</h3>
+              <button class="btn btn-sm" onclick="adminPurgarActividad()">Limpiar actividad > 30 días</button>
+            </div>
+            <div id="adm-tabla-actividad"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCIÓN: Avisos -->
+    <section id="sec-avisos" class="card hidden">
+      <h2>Avisos de la Comiquería</h2>
+      <div id="lista-avisos"></div>
+    </section>
+
+    <!-- SECCIÓN: Contacto -->
+    <section id="sec-contacto" class="card hidden">
+      <h2>Contacto y Horarios</h2>
+      <div id="info-contacto"></div>
+    </section>
+
+    <!-- SECCIÓN: Políticas -->
+    <section id="sec-politicas" class="card hidden">
+      <h2>Políticas del Local</h2>
+      <div id="info-politicas"></div>
+    </section>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -14,13 +14,12 @@ Las reservas se guardan 24 horas y el pago y el retiro se hacen en efectivo en e
 ## 3. Stack
 - Frontend: React + TypeScript.
 - Backend: Node.js + TypeScript con Express, en capas Controller, Service y Repository.
-- Base de datos: la define el arquitecto en `docs/plan.md`.
+- Base de datos: la define el arquitecto en `docs/plan.md`. (actualmente sqlite)
 
 ## 4. Reglas para todos los agentes
 - Antes de actuar, leer `docs/specs.md` y `docs/glosario.md`.
 - No inventar reglas. Si algo no está en la spec, no completarlo: frenar y preguntar.
 - Cada cambio cita la RN o la HU que cumple.
-- Solo el analista modifica `specs.md`, `decisiones.md` y `glosario.md`. Los demás reportan los problemas que encuentren.
 - Cambios chicos: una tarea por vez. No tocar archivos fuera del área propia.
 - Si un pedido contradice la spec, avisar antes de hacer nada.
 - Usar los términos del glosario, también en los nombres del código.

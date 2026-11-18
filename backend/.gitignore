@@ -1,0 +1,21 @@
+# Dependencias
+node_modules/
+
+# Compilado
+dist/
+
+# Base de datos SQLite (se genera en runtime)
+*.db
+*.db-shm
+*.db-wal
+
+# Variables de entorno
+.env
+.env.local
+
+# Logs
+*.log
+
+# Sistema operativo
+.DS_Store
+Thumbs.db

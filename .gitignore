@@ -32,3 +32,9 @@ Desktop.ini
 .vscode/*
 !.vscode/extensions.json
 *.swp
+
+# Bases de datos y temporales
+*.db
+*.db-shm
+*.db-wal
+test-output.txt
