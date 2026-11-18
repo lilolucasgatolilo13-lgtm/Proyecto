@@ -297,4 +297,11 @@ export class LibroRepository {
   eliminarLibro(id: number): void {
     this.getDb().prepare('DELETE FROM libros WHERE id = ?').run(id);
   }
+
+  // A-04: Método tipado para registrar actividad, evita (repo as any).getDb()
+  registrarActividad(usuarioId: number | null, accion: string, detalle: string, fecha: string): void {
+    this.getDb().prepare(
+      `INSERT INTO registro_actividad (usuario_id, accion, detalle, fecha) VALUES (?, ?, ?, ?)`
+    ).run(usuarioId, accion, detalle, fecha);
+  }
 }

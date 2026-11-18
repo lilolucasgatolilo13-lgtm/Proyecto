@@ -63,6 +63,16 @@ export class UsuarioService {
       throw new Error('Todos los campos son obligatorios');
     }
 
+    // M-04: Validación de formato de correo
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(datos.correo)) {
+      throw new Error('El correo electrónico no tiene un formato válido');
+    }
+
+    // M-04: Validación de fecha de nacimiento
+    if (isNaN(Date.parse(datos.fecha_nacimiento))) {
+      throw new Error('La fecha de nacimiento no es válida');
+    }
+
     // RN-05: Unicidad de documento y correo
     if (this.usuarioRepo.buscarPorDocumento(datos.documento)) {
       throw new Error('Ya existe una cuenta con ese documento');
@@ -112,6 +122,11 @@ export class UsuarioService {
       throw new Error('Rol inválido');
     }
 
+    // M-04: Validación de formato de correo
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(datos.correo)) {
+      throw new Error('El correo electrónico no tiene un formato válido');
+    }
+
     // RN-40: Máximo 10 empleados y 4 administradores
     if (datos.rol === 'empleado') {
       const cantidadEmpleados = this.usuarioRepo.contarPorRol('empleado');
@@ -148,10 +163,13 @@ export class UsuarioService {
     });
 
     const ahoraIso = ahora().toISOString();
-    (this.usuarioRepo as any).getDb().prepare(`
-      INSERT INTO registro_actividad (usuario_id, accion, detalle, fecha)
-      VALUES (?, 'crear_personal', ?, ?)
-    `).run(adminId, `Creación de ${datos.rol} "${datos.nombre} ${datos.apellido}"`, ahoraIso);
+    // A-04: Uso del metodo tipado registrarActividad en lugar de (repo as any).getDb()
+    this.usuarioRepo.registrarActividad(
+      adminId,
+      'crear_personal',
+      `Creación de ${datos.rol} "${datos.nombre} ${datos.apellido}"`,
+      ahoraIso
+    );
 
     return usuarioCreado;
   }
@@ -199,10 +217,13 @@ export class UsuarioService {
       administrador_id: adminId
     });
 
-    (this.usuarioRepo as any).getDb().prepare(`
-      INSERT INTO registro_actividad (usuario_id, accion, detalle, fecha)
-      VALUES (?, 'baneo_usuario', ?, ?)
-    `).run(adminId, `Baneo de usuario #${usuarioId} (${usuario.nombre} ${usuario.apellido}). Motivo: ${motivo.trim()}`, ahoraIso);
+    // A-04: Uso del metodo tipado registrarActividad en lugar de (repo as any).getDb()
+    this.usuarioRepo.registrarActividad(
+      adminId,
+      'baneo_usuario',
+      `Baneo de usuario #${usuarioId} (${usuario.nombre} ${usuario.apellido}). Motivo: ${motivo.trim()}`,
+      ahoraIso
+    );
   }
 
   /**
@@ -225,10 +246,13 @@ export class UsuarioService {
       administrador_id: adminId
     });
 
-    (this.usuarioRepo as any).getDb().prepare(`
-      INSERT INTO registro_actividad (usuario_id, accion, detalle, fecha)
-      VALUES (?, 'reversion_baneo', ?, ?)
-    `).run(adminId, `Reversión de baneo de usuario #${usuarioId}`, ahoraIso);
+    // A-04: Uso del metodo tipado registrarActividad en lugar de (repo as any).getDb()
+    this.usuarioRepo.registrarActividad(
+      adminId,
+      'reversion_baneo',
+      `Reversión de baneo de usuario #${usuarioId}`,
+      ahoraIso
+    );
   }
 
   /**
@@ -241,9 +265,12 @@ export class UsuarioService {
     }
 
     const ahoraIso = ahora().toISOString();
-    (this.usuarioRepo as any).getDb().prepare(`
-      INSERT INTO registro_actividad (usuario_id, accion, detalle, fecha)
-      VALUES (?, 'informe_documento', ?, ?)
-    `).run(empleadoId, `Informe de documento ajeno presentado para usuario #${usuarioId} (${usuario.documento})`, ahoraIso);
+    // A-04: Uso del metodo tipado registrarActividad en lugar de (repo as any).getDb()
+    this.usuarioRepo.registrarActividad(
+      empleadoId,
+      'informe_documento',
+      `Informe de documento ajeno presentado para usuario #${usuarioId} (${usuario.documento})`,
+      ahoraIso
+    );
   }
 }

@@ -82,4 +82,11 @@ export class UsuarioRepository {
     const resultado = this.getDb().prepare('SELECT COUNT(*) as total FROM usuarios WHERE rol = ?').get(rol) as { total: number };
     return resultado.total;
   }
+
+  // A-04: Método tipado para registrar actividad, evita (repo as any).getDb()
+  registrarActividad(usuarioId: number, accion: string, detalle: string, fecha: string): void {
+    this.getDb().prepare(
+      `INSERT INTO registro_actividad (usuario_id, accion, detalle, fecha) VALUES (?, ?, ?, ?)`
+    ).run(usuarioId, accion, detalle, fecha);
+  }
 }

@@ -8,14 +8,35 @@ let vistaActualCatalogo = 'catalogo'; // 'catalogo' | 'ofertas' | 'novedades'
 let timerContador = null;
 
 // ==========================================
+// SEGURIDAD: Escape de HTML (C-02)
+// Evita XSS al insertar datos del servidor en innerHTML
+// ==========================================
+function esc(str) {
+  const d = document.createElement('div');
+  d.textContent = String(str ?? '');
+  return d.innerHTML;
+}
+
+// Valida que una URL sea http o https (M-05)
+function urlSegura(url) {
+  if (!url || typeof url !== 'string') return '';
+  return /^https?:\/\//i.test(url.trim()) ? url.trim() : '';
+}
+
+// ==========================================
 // UTILIDADES & NOTIFICACIONES
 // ==========================================
 function mostrarMensaje(texto, tipo = 'info') {
   const div = document.getElementById('mensaje-global');
-  div.innerHTML = `<div class="alert alert-${tipo}">${texto}</div>`;
+  // B-04: Usar createElement y textContent en lugar de innerHTML para evitar XSS
+  const alerta = document.createElement('div');
+  alerta.className = `alert alert-${tipo}`;
+  alerta.textContent = texto;
+  div.innerHTML = '';
+  div.appendChild(alerta);
   window.scrollTo({ top: 0, behavior: 'smooth' });
   setTimeout(() => {
-    if (div.innerHTML.includes(texto)) {
+    if (div.contains(alerta)) {
       div.innerHTML = '';
     }
   }, 6000);
@@ -279,18 +300,19 @@ function renderizarLibros(libros) {
     return;
   }
 
+  // C-02: Todos los datos del servidor se escapan con esc() antes de insertar en innerHTML
   grilla.innerHTML = libros.map(libro => {
     const disponible = libro.cantidad_disponible > 0;
     const tieneDescuento = libro.precio_vigente && libro.precio_vigente < libro.precio;
-    const tieneAumento = libro.precio_vigente && libro.precio_vigente > libro.precio;
     const precioFinal = libro.precio_vigente || libro.precio;
+    const portada = urlSegura(libro.portada_url); // M-05: solo URLs http/https
 
     let botonHtml = '';
     if (!usuario) {
       botonHtml = `<button class="btn btn-sm" onclick="navegar('login')">Inicie sesión para reservar</button>`;
     } else if (usuario.rol === 'cliente') {
       if (disponible) {
-        botonHtml = `<button class="btn btn-success btn-sm" onclick="reservarLibro(${libro.id})">Reservar (24 hs)</button>`;
+        botonHtml = `<button class="btn btn-success btn-sm" onclick="reservarLibro(${Number(libro.id)})">Reservar (24 hs)</button>`;
       } else {
         botonHtml = `<button class="btn btn-sm" disabled>Agotado</button>`;
       }
@@ -302,28 +324,28 @@ function renderizarLibros(libros) {
       <div class="libro-card">
         <div>
           <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.6rem;">
-            <span class="badge ${libro.clasificacion_edad === '+18' ? 'badge-18' : 'badge-atp'}">${libro.clasificacion_edad || 'ATP'}</span>
+            <span class="badge ${libro.clasificacion_edad === '+18' ? 'badge-18' : 'badge-atp'}">${esc(libro.clasificacion_edad) || 'ATP'}</span>
             <div style="display:flex; gap:0.3rem;">
               ${tieneDescuento ? '<span class="badge badge-oferta">OFERTA</span>' : ''}
               ${libro.es_novedad ? '<span class="badge badge-novedad">NUEVO</span>' : ''}
             </div>
           </div>
-          ${libro.portada_url ? `<div style="margin-bottom:0.8rem; overflow:hidden; border-radius:8px; max-height:150px; background:rgba(11,13,25,0.7); text-align:center; border:1px solid rgba(255,255,255,0.06);"><img src="${libro.portada_url}" alt="${libro.titulo}" style="max-height:150px; width:auto; max-width:100%; object-fit:cover;" onerror="this.parentElement.style.display='none'"></div>` : ''}
-          <h3>${libro.titulo}</h3>
+          ${portada ? `<div style="margin-bottom:0.8rem; overflow:hidden; border-radius:8px; max-height:150px; background:rgba(11,13,25,0.7); text-align:center; border:1px solid rgba(255,255,255,0.06);"><img src="${portada}" alt="${esc(libro.titulo)}" style="max-height:150px; width:auto; max-width:100%; object-fit:cover;" onerror="this.parentElement.style.display='none'"></div>` : ''}
+          <h3>${esc(libro.titulo)}</h3>
           <div class="libro-meta">
-            <div><strong>Serie:</strong> <em>${libro.serie || 'Tomo Único'}</em> (Tomo ${libro.numero_tomo})</div>
-            <div><strong>Autor:</strong> <em>${libro.autor}</em></div>
-            <div><strong>Editorial:</strong> <em>${libro.editorial}</em></div>
-            <div><strong>Género:</strong> <em>${libro.genero}</em></div>
+            <div><strong>Serie:</strong> <em>${esc(libro.serie || 'Tomo Único')}</em> (Tomo ${Number(libro.numero_tomo)})</div>
+            <div><strong>Autor:</strong> <em>${esc(libro.autor)}</em></div>
+            <div><strong>Editorial:</strong> <em>${esc(libro.editorial)}</em></div>
+            <div><strong>Género:</strong> <em>${esc(libro.genero)}</em></div>
           </div>
         </div>
         <div>
           <div class="precio-box">
-            ${tieneDescuento ? `<span class="precio-original">$${libro.precio}</span>` : ''}
-            <span class="precio-vigente">$${precioFinal}</span>
+            ${tieneDescuento ? `<span class="precio-original">$${Number(libro.precio)}</span>` : ''}
+            <span class="precio-vigente">$${Number(precioFinal)}</span>
           </div>
           <div class="disponibilidad ${disponible ? 'disponible' : 'agotado'}">
-            ${disponible ? `✔ Disponibles: ${libro.cantidad_disponible}` : '✖ Agotado'}
+            ${disponible ? `✔ Disponibles: ${Number(libro.cantidad_disponible)}` : '✖ Agotado'}
           </div>
           <div>${botonHtml}</div>
         </div>
@@ -393,18 +415,18 @@ async function cargarMisReservas() {
         ${reservas.map(r => `
           <div class="card" style="margin-bottom:0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; border-left: 4px solid #e94560;">
             <div>
-              <h3>${r.titulo}</h3>
+              <h3>${esc(r.titulo)}</h3>
               <div style="font-size:0.9rem; color:#555;">
-                <div>Código de retiro: <strong style="color:#1a1a2e; font-size:1.05rem;">${r.codigo}</strong></div>
-                <div>Precio fijado: <strong>$${r.precio_fijado}</strong> (+ 5% en caja: <strong>$${Math.round(r.precio_fijado * 1.05)}</strong>)</div>
+                <div>Código de retiro: <strong style="color:#1a1a2e; font-size:1.05rem;">${esc(r.codigo)}</strong></div>
+                <div>Precio fijado: <strong>$${Number(r.precio_fijado)}</strong> (+ 5% en caja: <strong>$${Math.round(r.precio_fijado * 1.05)}</strong>)</div>
                 <div>Vencimiento: ${new Date(r.fecha_vencimiento).toLocaleString()}</div>
               </div>
             </div>
             <div style="text-align:right;">
-              <div class="reserva-timer" data-segundos="${r.segundos_restantes}" style="font-size:1.1rem; font-weight:bold; color:#e94560; margin-bottom:0.5rem;">
+              <div class="reserva-timer" data-segundos="${Number(r.segundos_restantes)}" style="font-size:1.1rem; font-weight:bold; color:#e94560; margin-bottom:0.5rem;">
                 ${formatearTiempoRestante(r.segundos_restantes)}
               </div>
-              <button class="btn btn-danger btn-sm" onclick="cancelarMiReserva(${r.id})">Cancelar Reserva</button>
+              <button class="btn btn-danger btn-sm" onclick="cancelarMiReserva(${Number(r.id)})">Cancelar Reserva</button>
             </div>
           </div>
         `).join('')}
@@ -562,12 +584,12 @@ async function empleadoBuscarReserva() {
 
     salida.innerHTML = items.map(r => `
       <div class="card" style="border-left: 4px solid #28a745; margin-bottom:1rem;">
-        <h3>Reserva ${r.codigo} - ${r.titulo}</h3>
-        <p><strong>Cliente:</strong> ${r.nombre} ${r.apellido} (Doc: ${r.documento})</p>
-        <p><strong>Precio fijado:</strong> $${r.precio_fijado}</p>
+        <h3>Reserva ${esc(r.codigo)} - ${esc(r.titulo)}</h3>
+        <p><strong>Cliente:</strong> ${esc(r.nombre)} ${esc(r.apellido)} (Doc: ${esc(r.documento)})</p>
+        <p><strong>Precio fijado:</strong> $${Number(r.precio_fijado)}</p>
         <p><strong>Total con recargo del 5% a cobrar en efectivo:</strong> <span style="font-size:1.2rem; color:#28a745; font-weight:bold;">$${Math.round(r.precio_fijado * 1.05)}</span></p>
-        <p><strong>Estado:</strong> ${r.estado}</p>
-        <button class="btn btn-success" style="margin-top:0.6rem;" onclick="empleadoCobrarYRetirar(${r.id})">Cobrar en Efectivo y Marcar Retirada</button>
+        <p><strong>Estado:</strong> ${esc(r.estado)}</p>
+        <button class="btn btn-success" style="margin-top:0.6rem;" onclick="empleadoCobrarYRetirar(${Number(r.id)})">Cobrar en Efectivo y Marcar Retirada</button>
       </div>
     `).join('');
   } catch (e) {
@@ -724,13 +746,13 @@ async function adminListarLibros() {
         <tbody>
           ${libros.map(l => `
             <tr>
-              <td>${l.id}</td>
-              <td>${l.titulo}</td>
-              <td>${l.serie || '-'}</td>
-              <td>$${l.precio}</td>
-              <td>${l.cantidad_total}</td>
+              <td>${Number(l.id)}</td>
+              <td>${esc(l.titulo)}</td>
+              <td>${esc(l.serie || '-')}</td>
+              <td>$${Number(l.precio)}</td>
+              <td>${Number(l.cantidad_total)}</td>
               <td>
-                <button class="btn btn-sm ${l.oculto ? 'btn-success' : 'btn-danger'}" onclick="adminToggleOcultarLibro(${l.id}, ${l.oculto ? 0 : 1})">
+                <button class="btn btn-sm ${l.oculto ? 'btn-success' : 'btn-danger'}" onclick="adminToggleOcultarLibro(${Number(l.id)}, ${l.oculto ? 0 : 1})">
                   ${l.oculto ? 'Mostrar' : 'Ocultar'}
                 </button>
               </td>
@@ -953,9 +975,9 @@ async function adminCargarActividad() {
           ${logs.map(l => `
             <tr>
               <td style="white-space:nowrap; font-size:0.8rem;">${new Date(l.fecha).toLocaleString()}</td>
-              <td>${l.usuario_nombre || 'Sistema'} (${l.usuario_rol || '-'})</td>
-              <td><code>${l.accion}</code></td>
-              <td>${l.detalle}</td>
+              <td>${esc(l.usuario_nombre || 'Sistema')} (${esc(l.usuario_rol || '-')})</td>
+              <td><code>${esc(l.accion)}</code></td>
+              <td>${esc(l.detalle)}</td>
             </tr>
           `).join('')}
         </tbody>

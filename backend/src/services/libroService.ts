@@ -82,6 +82,11 @@ export class LibroService {
       throw new Error('El precio del libro es obligatorio y debe ser mayor a 0');
     }
 
+    // M-05: Validar protocolo de portada_url para evitar URLs tipo javascript:
+    if (datos.portada_url && datos.portada_url.trim().length > 0 && !/^https?:\/\//i.test(datos.portada_url.trim())) {
+      throw new Error('La URL de portada debe comenzar con http:// o https://');
+    }
+
     // Resolución de serie
     let serieId = datos.serie_id;
     if (datos.serie_nueva && datos.serie_nueva.trim().length > 0) {
@@ -150,15 +155,23 @@ export class LibroService {
       throw new Error('El precio debe ser un número válido mayor a 0');
     }
 
+    // M-05: Validar protocolo de portada_url si se está actualizando
+    if (cambios.portada_url && cambios.portada_url.trim().length > 0 && !/^https?:\/\//i.test(cambios.portada_url.trim())) {
+      throw new Error('La URL de portada debe comenzar con http:// o https://');
+    }
+
     this.libroRepo.actualizarLibro(id, cambios);
 
     if (cambios.precio !== undefined) {
       const ahoraIso = ahora().toISOString();
       try {
-        (this.libroRepo as any).getDb().prepare(`
-          INSERT INTO registro_actividad (usuario_id, accion, detalle, fecha)
-          VALUES (?, 'cambio_precio', ?, ?)
-        `).run(usuarioId ?? null, `Cambio de precio de "${libro.titulo}" de $${libro.precio} a $${cambios.precio}`, ahoraIso);
+        // A-04: Uso del metodo tipado registrarActividad en lugar de (repo as any).getDb()
+        this.libroRepo.registrarActividad(
+          usuarioId ?? null,
+          'cambio_precio',
+          `Cambio de precio de "${libro.titulo}" de $${libro.precio} a $${cambios.precio}`,
+          ahoraIso
+        );
       } catch {
         // Silencioso si falla
       }

@@ -1,5 +1,7 @@
 import express from 'express';
 import path from 'path';
+import helmet from 'helmet';
+import morgan from 'morgan';
 import saludRouter from './routes/salud';
 import usuariosRouter from './routes/usuarios';
 import authRouter from './routes/autenticacion';
@@ -12,12 +14,21 @@ import administracionRouter from './routes/administracion';
 
 const app = express();
 
-app.use(express.json());
+// A-02: Headers de seguridad HTTP
+app.use(helmet({
+  contentSecurityPolicy: false // lo gestionamos manualmente si hace falta, desactivar evita romper el frontend
+}));
+
+// B-03: Logs de acceso HTTP
+app.use(morgan('combined'));
+
+// A-03: Límite de tamaño del body JSON (evita DoS por body gigante)
+app.use(express.json({ limit: '50kb' }));
 
 // Rutas API
 app.use('/api', saludRouter);
 app.use('/api/auth', authRouter);
-app.use('/auth', authRouter);
+// M-03: Eliminada ruta duplicada /auth (sin /api) que permitía bypassear rate limiters
 app.use('/api', usuariosRouter);
 app.use('/api', descuentosRouter);
 app.use('/api', librosRouter);
